@@ -19,6 +19,7 @@ BluetoothSerial SerialBT; //define BT funcions header
 #define signal 15      //define the input pin for esp32
 #define bufferSize 64  //define the amount of data stored inside de buffer
 
+#define LED_BUILTIN 2
 /*Global declaration for blinking led withoud delay*/
 int ledState = LOW;             // ledState used to set the LED
 unsigned long LEDpreviouMicros = 0;        // will store last time LED was updated

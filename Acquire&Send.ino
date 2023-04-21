@@ -22,7 +22,7 @@ Adafruit_MPU6050 mpu; //define MPU-6050 Sensor
 /*---------------------------------------------*/
 
 #define signal 15      //define the input pin for esp32
-#define bufferSize 91  //define the amount of data stored inside de buffer
+#define bufferSize 96  //define the amount of data stored inside de buffer
 
 #define LED_BUILTIN 2
 /*Global declaration for blinking led withoud delay*/
@@ -44,13 +44,13 @@ const size_t CAPACITY = JSON_ARRAY_SIZE(bufferSize);
 int bufferIndex = 0; //index for counting buffer readyness
 /*---------------------------------------------*/
 
-float timestampSimu = 1680058002;
+//float timestampSimu = 1680058002;
 const char* name_device = "left"; // "left" or "right"
 
 String DataPrep(){
   StaticJsonDocument<CAPACITY> doc; // allocate the memory for the document
 
-  JsonArray timestamp = doc.createNestedArray("timestamp");
+  //JsonArray timestamp = doc.createNestedArray("timestamp");
   JsonArray data_Ac_X = doc.createNestedArray("left_data_Ac_X");
   JsonArray data_Ac_Y = doc.createNestedArray("left_data_Ac_Y");
   JsonArray data_Ac_Z = doc.createNestedArray("left_data_Ac_Z");
@@ -58,14 +58,21 @@ String DataPrep(){
   JsonArray data_Gy_Y = doc.createNestedArray("left_data_Gy_Y");
   JsonArray data_Gy_Z = doc.createNestedArray("left_data_Gy_Z");
 
-  for (int i = 0; i < bufferSize; i=i+7){
-      timestamp.add(buffer[i]);
-      data_Ac_X.add(buffer[i+1]);
-      data_Ac_Y.add(buffer[i+2]);
-      data_Ac_Z.add(buffer[i+3]);
-      data_Gy_X.add(buffer[i+4]);
-      data_Gy_Y.add(buffer[i+5]);
-      data_Gy_Z.add(buffer[i+6]);
+  /*JsonArray data_Ac_X = doc.createNestedArray("right_data_Ac_X");
+  JsonArray data_Ac_Y = doc.createNestedArray("right_data_Ac_Y");
+  JsonArray data_Ac_Z = doc.createNestedArray("right_data_Ac_Z");
+  JsonArray data_Gy_X = doc.createNestedArray("right_data_Gy_X");
+  JsonArray data_Gy_Y = doc.createNestedArray("right_data_Gy_Y");
+  JsonArray data_Gy_Z = doc.createNestedArray("right_data_Gy_Z");*/
+
+  for (int i = 0; i < bufferSize; i=i+6){
+      //timestamp.add(buffer[i]);
+      data_Ac_X.add(buffer[i]);
+      data_Ac_Y.add(buffer[i+1]);
+      data_Ac_Z.add(buffer[i+2]);
+      data_Gy_X.add(buffer[i+3]);
+      data_Gy_Y.add(buffer[i+4]);
+      data_Gy_Z.add(buffer[i+5]);
   }
   // serialize the array and sed the result to Serial
   String json;
@@ -74,18 +81,18 @@ String DataPrep(){
   return json;
 }
 
-bool bufferBuild(float timestampRead, float valueRead1,float valueRead2,float valueRead3,float valueRead4,float valueRead5,float valueRead6, unsigned long currentMicros){
+bool bufferBuild(float valueRead1,float valueRead2,float valueRead3,float valueRead4,float valueRead5,float valueRead6, unsigned long currentMicros){
   if(currentMicros - BUFFERpreviousMicros >= BUFFERinterval){
     //Serial.print("#debug - (currentMicros - BUFFERpreviousMicros ");Serial.println(currentMicros - BUFFERpreviousMicros);      //*debug*
     BUFFERpreviousMicros = currentMicros;  
 
-    buffer[bufferIndex] = timestampRead;
-    buffer[bufferIndex+1] = valueRead1;
-    buffer[bufferIndex+2] = valueRead2;
-    buffer[bufferIndex+3] = valueRead3;
-    buffer[bufferIndex+4] = valueRead4;
-    buffer[bufferIndex+5] = valueRead5;
-    buffer[bufferIndex+6] = valueRead6;
+    //buffer[bufferIndex] = timestampRead;
+    buffer[bufferIndex] = valueRead1;
+    buffer[bufferIndex+1] = valueRead2;
+    buffer[bufferIndex+2] = valueRead3;
+    buffer[bufferIndex+3] = valueRead4;
+    buffer[bufferIndex+4] = valueRead5;
+    buffer[bufferIndex+5] = valueRead6;
     /*Serial.print(" - "); Serial.print(bufferIndex); Serial.print(" - "); Serial.print(timestampRead);
     Serial.print(" - "); Serial.print(bufferIndex+1); Serial.print(" - "); Serial.print(valueRead1);
     Serial.print(" - "); Serial.print(bufferIndex+2); Serial.print(" - "); Serial.print(valueRead2);
@@ -94,7 +101,7 @@ bool bufferBuild(float timestampRead, float valueRead1,float valueRead2,float va
     Serial.print(" - "); Serial.print(bufferIndex+5); Serial.print(" - "); Serial.print(valueRead5);
     Serial.print(" - "); Serial.print(bufferIndex+6); Serial.print(" - "); Serial.print(valueRead6);
          *///*debug*
-    bufferIndex = bufferIndex + 7;
+    bufferIndex = bufferIndex + 6;
 
     if (bufferIndex >= bufferSize){
       //Serial.print("#debug - bufferIndex ");Serial.println(bufferIndex);    //*debug*
@@ -224,7 +231,7 @@ void loop() {
   //strcpy(name_device_sensor,name_device);
   //strcat(name_device_sensor, name_sensor);
   
-  bufferFlag = bufferBuild(currentMicros, a.acceleration.x, a.acceleration.y, a.acceleration.z, g.gyro.x, g.gyro.y, g.gyro.z, currentMicros);   //call the buffer builder function every loop cicle, now using raw analog input and microsec precision
+  bufferFlag = bufferBuild(a.acceleration.x, a.acceleration.y, a.acceleration.z, g.gyro.x, g.gyro.y, g.gyro.z, currentMicros);   //call the buffer builder function every loop cicle, now using raw analog input and microsec precision
   //Serial.print("------------"); Serial.println(bufferFlag);     //*debug*
   
   if(bufferFlag == 1){
@@ -234,4 +241,4 @@ void loop() {
   
   iteracoes++;         //increases the loop cicles counter
     
-} 
+}
